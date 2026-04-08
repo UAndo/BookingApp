@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="bookingapp.client/bookingapp.client.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+    <Project Path="BookingApp.Server/BookingApp.Server.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>
