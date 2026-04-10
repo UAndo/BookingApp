@@ -5,7 +5,7 @@ namespace BookingApp.Server.Features.Auth.Domain.Users;
 
 public sealed class User : Entity<UserId>
 {
-    public string Email { get; private set; } = default!;
+    public Email Email { get; private set; } = default!;
     public string NormalizedEmail { get; private set; } = default!;
     public string PasswordHash { get; private set; } = default!;
     public bool EmailVerified { get; private set; }
@@ -17,13 +17,12 @@ public sealed class User : Entity<UserId>
     public DateTimeOffset? LastLoginAt { get; private set; }
     private User() { }
 
-    public static User Create(string email, string passwordHash, DateTime createdAt)
+    public static User Create(Email email, string passwordHash, DateTime createdAt)
     {
         return new User
         {
             Id = UserId.Of(Guid.NewGuid()),
             Email = email,
-            NormalizedEmail = email.ToLowerInvariant(),
             PasswordHash = passwordHash,
             EmailVerified = false,
             IsLocked = false,

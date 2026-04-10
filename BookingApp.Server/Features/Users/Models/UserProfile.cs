@@ -13,7 +13,7 @@ namespace BookingApp.Server.Features.Users.Models
         public DateOnly? DateOfBirth { get; private set; }
         public string? Nationality { get; private set; } = default!;
         public Gender? Gender { get; private set; }
-        public string? AvatarUrl { get; private set; }
+        public string? AvatarUrl { get; private set; } 
 
         private UserProfile() { }
 

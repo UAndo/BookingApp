@@ -31,20 +31,18 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
                 Status = BookingStatus.Draft
             };
 
-            booking.UpdateGuests(guests);
+            booking.SelectGuests(guests);
 
             return booking;
         }
 
-        public void UpdateDetails(BookingCustomer bookingCustomer, DateTimeOffset arrivingTime)
+        public void ProvideCustomerDetails(BookingCustomer bookingCustomer)
         {
             EnsureDraft();
-
             BookingCustomer = bookingCustomer;
-            ArrivingTime = arrivingTime;
         }
 
-        public void UpdateGuests(List<Guest> guests)
+        public void SelectGuests(List<Guest> guests)
         {
             EnsureDraft();
 
@@ -55,7 +53,7 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
             _guests.AddRange(guests);
         }
 
-        public void SetDates(DateTimeOffset checkIn, DateTimeOffset checkOut)
+        public void SelectDates(DateTimeOffset checkIn, DateTimeOffset checkOut)
         {
             EnsureDraft();
 
@@ -98,7 +96,7 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
 
             if (Status == BookingStatus.Confirmed)
             {
-                //TODO: add domain event for booking cancellation, e.g. to handle refund logic and penalty fees if applicable
+                //TODO: add domain event for booking cancellation, e.g. to handle refundч' logic and penalty fees if applicable
             }
 
             Status = BookingStatus.Cancelled;

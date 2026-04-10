@@ -1,10 +1,10 @@
-﻿namespace BookingApp.Server.Features.Users.Models
+﻿namespace BookingApp.Server.BuildingBlocks.Domain.ValueObjects
 {
     public record Address
     {
-        public string AddressLine { get; init; } = default!;
-        public string Country { get; init; } = default!;
-        public string City { get; init; } = default!;
+        public string AddressLine { get; }
+        public string Country { get; }
+        public string City { get; }
 
         private Address(string addressLine, string country, string city)
         {

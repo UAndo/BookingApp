@@ -1,6 +1,6 @@
 ﻿using PhoneNumbers;
 
-namespace BookingApp.Server.Features.Users.Models
+namespace BookingApp.Server.BuildingBlocks.Domain.ValueObjects
 {
     public record PhoneNumber
     {
