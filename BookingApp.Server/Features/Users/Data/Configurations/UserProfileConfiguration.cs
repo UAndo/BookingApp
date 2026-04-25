@@ -24,8 +24,8 @@ namespace BookingApp.Server.Features.Users.Data.Configurations
 
             builder.Property(up => up.PhoneNumber)
                 .HasConversion(
-                    pn => pn.Value,
-                    value => PhoneNumber.FromDb(value))
+                    pn => pn != null ? pn.Value : null,
+                    value => value != null ? PhoneNumber.FromDb(value) : null)
                 .HasMaxLength(20);
 
             builder.Property(up => up.DateOfBirth);

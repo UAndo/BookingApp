@@ -30,7 +30,7 @@ public class ChangePasswordCommandHandler(
 {
     public async Task<ErrorOr<Unit>> Handle(ChangePasswordCommand command, CancellationToken cancellationToken)
     {
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == command.Email, cancellationToken);
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Email.Value == command.Email, cancellationToken);
         if (user == null)
             return Errors.Authentication.UserNotFound;
 

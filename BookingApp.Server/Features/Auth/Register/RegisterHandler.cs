@@ -2,8 +2,7 @@ using BookingApp.Server.BuildingBlocks.CQRS;
 using BookingApp.Server.Features.Auth.Domain.Errors;
 using BookingApp.Server.Features.Auth.Domain.Users;
 using BookingApp.Server.Features.Auth.Domain.VerificationCodes;
-using BookingApp.Server.Features.Users.Models;
-using BookingApp.Server.Infrastructure.Abstractions;
+using BookingApp.Server.BuildingBlocks.Domain.ValueObjects;
 
 namespace BookingApp.Server.Features.Auth.Register;
 
@@ -57,8 +56,10 @@ public class RegisterCommandHandler(
             return Errors.Authentication.UserAlreadyExists;
         }
 
+        var email = Email.Of(command.Email);
+
         user = User.Create(
-             command.Email,
+             email,
              passwordHasher.HashPassword(command.Password),
              timeProvider.GetUtcNow().UtcDateTime
          );

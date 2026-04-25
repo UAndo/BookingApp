@@ -9,7 +9,7 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
         public IReadOnlyList<Guest> Guests => _guests.AsReadOnly();
         public UserId? UserId { get; private set; }
         public ListingId ListingId { get; private set; }
-        public BookingCustomer? BookingCustomer { get; private set; }
+        public BookingGuest? BookingGuest { get; private set; }
         public DateRange Period {  get; private set; }
         public BookingStatus Status { get; private set; }
         public DateTimeOffset ExpiresAt { get; private set; }
@@ -36,10 +36,10 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
             return booking;
         }
 
-        public void ProvideCustomerDetails(BookingCustomer bookingCustomer)
+        public void ProvideGuestDetails(BookingGuest bookingGuest)
         {
             EnsureDraft();
-            BookingCustomer = bookingCustomer;
+            BookingGuest = bookingGuest;
         }
 
         public void SelectGuests(List<Guest> guests)

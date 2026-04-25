@@ -3,22 +3,24 @@ using System;
 using BookingApp.Server.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using NpgsqlTypes;
 
 #nullable disable
 
 namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260411000640_Add Booking")]
+    partial class AddBooking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.7")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -163,9 +165,6 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("ListingId")
                         .HasColumnType("uuid");
-
-                    b.Property<NpgsqlRange<DateTime>>("Period")
-                        .HasColumnType("tstzrange");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -316,6 +315,27 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
                                 .IsRequired();
                         });
 
+                    b.OwnsOne("BookingApp.Server.Features.Bookings.Domain.Bookings.DateRange", "Period", b1 =>
+                        {
+                            b1.Property<Guid>("BookingId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTimeOffset>("From")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("CheckIn");
+
+                            b1.Property<DateTimeOffset>("To")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("CheckOut");
+
+                            b1.HasKey("BookingId");
+
+                            b1.ToTable("Bookings");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BookingId");
+                        });
+
                     b.OwnsMany("BookingApp.Server.Features.Bookings.Domain.Bookings.Guest", "Guests", b1 =>
                         {
                             b1.Property<int>("Id")
@@ -345,6 +365,9 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
                     b.Navigation("BookingGuest");
 
                     b.Navigation("Guests");
+
+                    b.Navigation("Period")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookingApp.Server.Features.Users.Models.UserProfile", b =>

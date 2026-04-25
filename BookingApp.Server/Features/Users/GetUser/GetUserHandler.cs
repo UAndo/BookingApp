@@ -1,6 +1,7 @@
 ﻿using BookingApp.Server.BuildingBlocks.CQRS;
 using BookingApp.Server.BuildingBlocks.Domain.ValueObjects;
 using BookingApp.Server.Features.Users.Common;
+using BookingApp.Server.Features.Users.Models;
 
 namespace BookingApp.Server.Features.Users.GetUser
 {

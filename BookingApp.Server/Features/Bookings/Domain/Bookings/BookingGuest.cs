@@ -2,7 +2,7 @@
 
 namespace BookingApp.Server.Features.Bookings.Domain.Bookings
 {
-    public record BookingCustomer
+    public record BookingGuest
     {
         public string FirstName { get; private set; } = default!;
         public string LastName { get; private set; } = default!;
@@ -12,7 +12,9 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
         public string Nationality { get; private set; } = default!;
         public DateTimeOffset? ArrivingTime { get; private set; } = default!;
 
-        private BookingCustomer(string firstName, string lastName, Email email, 
+        private BookingGuest() { }
+
+        private BookingGuest(string firstName, string lastName, Email email, 
             Address address, PhoneNumber phoneNumber, string nationality, DateTimeOffset? arrivingTime)
         {
             FirstName = firstName;
@@ -24,7 +26,7 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
             ArrivingTime = arrivingTime;
         }
 
-        public static BookingCustomer Of(string firstName, string lastName, Email email,
+        public static BookingGuest Of(string firstName, string lastName, Email email,
             Address address, PhoneNumber phoneNumber, string nationality, DateTimeOffset? arrivingTime)
         {
             ArgumentNullException.ThrowIfNull(firstName);
@@ -34,7 +36,7 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
             ArgumentNullException.ThrowIfNull(phoneNumber);
             ArgumentNullException.ThrowIfNull(nationality);
 
-            return new BookingCustomer(
+            return new BookingGuest(
                 firstName,
                 lastName,
                 email,

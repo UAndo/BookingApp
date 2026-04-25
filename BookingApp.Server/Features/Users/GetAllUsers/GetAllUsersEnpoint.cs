@@ -1,4 +1,4 @@
-﻿using BookingApp.Server.Features.Users.Common;
+﻿using BookingApp.Server.Features.Users.Models;
 using BookingApp.Server.Infrastructure.Web;
 
 namespace BookingApp.Server.Features.Users.GetAllUsers

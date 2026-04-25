@@ -1,8 +1,10 @@
-﻿namespace BookingApp.Server.Features.Users.Common
+﻿using BookingApp.Server.BuildingBlocks.Domain.ValueObjects;
+
+namespace BookingApp.Server.Features.Users.Models
 {
     public record UserDto(
         Guid Id,
-        string Email,
+        Email Email,
         bool EmailVerified
     );
 }
