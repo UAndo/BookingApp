@@ -41,12 +41,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddRateLimiter(options =>
 {
-    options.AddFixedWindowLimiter(policyName: "auth", options =>
+    options.AddFixedWindowLimiter(policyName: "auth", co =>
     {
-        options.PermitLimit = 10;
-        options.Window = TimeSpan.FromMinutes(1);
-        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        options.QueueLimit = 0;
+        co.PermitLimit = 10;
+        co.Window = TimeSpan.FromMinutes(1);
+        co.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        co.QueueLimit = 0;
     });
 });
 
@@ -113,6 +113,8 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
     });
 });
+
+
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 builder.Services.AddProblemDetails();
