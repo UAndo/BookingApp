@@ -13,7 +13,7 @@ public record RegisterCommand(
     string Password
     ) : ICommand<RegisterResult>;
 
-public record RegisterResult(Guid UserId);
+public record RegisterResult(UserId UserId);
 
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
@@ -49,7 +49,7 @@ public class RegisterCommandHandler(
 {
     public async Task<ErrorOr<RegisterResult>> Handle(RegisterCommand command, CancellationToken cancellationToken)
     {
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email.Equals(command.Email.ToLower()), cancellationToken);
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Email.Equals(command.Email.ToLowerInvariant()), cancellationToken);
 
         if (user != null)
         {
@@ -64,14 +64,13 @@ public class RegisterCommandHandler(
              timeProvider.GetUtcNow().UtcDateTime
          );
 
-        var verificationCode = await verificationService.CreateVerificationToken(
-            user.Id, VerificationCodeType.EmailConfirmation);
-
-        await emailSender.SendVerificationEmailAsync(command.Email, user.Id, verificationCode);
-
         context.Users.Add(user);
         await context.SaveChangesAsync(cancellationToken);
+        
+        var verificationCode = await verificationService.CreateVerificationToken(
+            user.Id, VerificationCodeType.EmailConfirmation);
+        await emailSender.SendVerificationEmailAsync(command.Email, user.Id, verificationCode);
 
-        return new RegisterResult(user.Id.Value);
+        return new RegisterResult(user.Id);
     }
 }

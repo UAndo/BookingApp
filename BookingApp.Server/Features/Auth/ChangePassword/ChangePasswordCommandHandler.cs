@@ -1,11 +1,12 @@
 ﻿using BookingApp.Server.BuildingBlocks.CQRS;
+using BookingApp.Server.BuildingBlocks.Domain.ValueObjects;
 using BookingApp.Server.Features.Auth.Domain.Errors;
 using BookingApp.Server.Features.Auth.Domain.VerificationCodes;
 
 namespace BookingApp.Server.Features.Auth.ChangePassword;
 
 public record ChangePasswordCommand(
-    string Email,
+    Email Email,
     string NewPassword,
     string ResetToken
     ) : ICommand;
@@ -30,7 +31,10 @@ public class ChangePasswordCommandHandler(
 {
     public async Task<ErrorOr<Unit>> Handle(ChangePasswordCommand command, CancellationToken cancellationToken)
     {
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email.Value == command.Email, cancellationToken);
+        var user = await context.Users
+            .Where(x => x.Email == command.Email)
+            .SingleOrDefaultAsync(cancellationToken);
+        
         if (user == null)
             return Errors.Authentication.UserNotFound;
 

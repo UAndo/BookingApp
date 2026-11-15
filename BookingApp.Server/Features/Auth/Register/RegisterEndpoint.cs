@@ -19,9 +19,16 @@ public class RegisterEndpoint : ICarterModule
             var command = request.Adapt<RegisterCommand>();
 
             var result =  await sender.Send(command);
+            
+            return result.ToHttpResult(value =>
+            {
+                var response = new RegisterResponse(value.UserId.Value);
 
-            return result.ToCreatedResult<RegisterResult, RegisterResponse>(
-                r => $"/api/users/{r.UserId}");
+                return TypedResults.CreatedAtRoute(
+                    response,
+                    routeName: "GetUser",
+                    routeValues: new { id = response.UserId });
+            });
         })
         .WithName("Register")
         .Produces<RegisterResponse>(StatusCodes.Status201Created)

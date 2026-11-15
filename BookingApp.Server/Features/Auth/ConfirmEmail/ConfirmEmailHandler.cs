@@ -17,7 +17,7 @@ public class ConfirmEmailHandler(
         ConfirmEmailCommand command,
         CancellationToken cancellationToken)
     {
-        var user = context.Users.FirstOrDefault(u => u.Email.Equals(command.Email.ToLower()));
+        var user = context.Users.FirstOrDefault(u => u.NormalizedEmail.Equals(command.Email.ToLowerInvariant()));
         if (user is null || !verificationService.VerifyToken(user.Id, command.ConfirmationCode,
             VerificationCodeType.EmailConfirmation))
         {

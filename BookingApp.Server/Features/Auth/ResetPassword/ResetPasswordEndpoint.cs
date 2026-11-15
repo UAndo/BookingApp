@@ -1,4 +1,5 @@
-﻿using BookingApp.Server.Infrastructure.Web;
+﻿using BookingApp.Server.BuildingBlocks.Domain.ValueObjects;
+using BookingApp.Server.Infrastructure.Web;
 
 namespace BookingApp.Server.Features.Auth.ResetPassword;
 
@@ -13,7 +14,7 @@ public class ResetPasswordEndpoint : ICarterModule
         app.MapPost("/api/auth/reset-password", async (
             [AsParameters] ResetPasswordRequest request, ISender sender) =>
         {
-            var command = request.Adapt<ResetPasswordCommand>();
+            var command = new ResetPasswordCommand(Email.Of(request.Email));
             var result = await sender.Send(command);
             return result.ToNoContentResult();
         })

@@ -39,12 +39,12 @@ public class LoginHandler(
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.NormalizedEmail.Equals(command.Email.ToLowerInvariant()), cancellationToken);
 
-        if (user == null || !user.EmailVerified)
+            if (user is not { EmailVerified: true })
             return Errors.Authentication.UserNotFound;
 
         if (user.IsLocked)
             return Errors.Authentication.AccountLocked;
-
+        
         if (!passwordHasher.VerifyPassword(command.Password, user.PasswordHash))
         {
             user.RecordFailedLogin(timeProvider.GetUtcNow());

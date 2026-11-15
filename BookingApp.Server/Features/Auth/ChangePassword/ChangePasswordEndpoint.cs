@@ -1,4 +1,5 @@
-﻿using BookingApp.Server.Infrastructure.Web;
+﻿using BookingApp.Server.BuildingBlocks.Domain.ValueObjects;
+using BookingApp.Server.Infrastructure.Web;
 
 namespace BookingApp.Server.Features.Auth.ChangePassword;
 
@@ -15,7 +16,11 @@ public class ChangePasswordEndpoint : ICarterModule
         app.MapPost("/api/auth/change-password", async (
             [AsParameters] ChangePasswordRequest request, ISender sender) =>
         {
-            var command = request.Adapt<ChangePasswordCommand>();
+            var command = new ChangePasswordCommand(
+                Email.Of(request.Email),
+                request.NewPassword,
+                request.ResetToken);
+            
             var result = await sender.Send(command);
             return result.ToNoContentResult();
         })
