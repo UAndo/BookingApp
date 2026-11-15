@@ -9,21 +9,22 @@ namespace BookingApp.Server.Features.Bookings.CreateBooking
         List<Guest> Guests,
         DateTimeOffset CheckIn,
         DateTimeOffset CheckOut,
-        Guid ListingId,
+        ListingId ListingId,
         UserId? UserId) : ICommand<CreateBookingResult>;
 
     public record CreateBookingResult(BookingId BookingId);
 
-    public class CreateBookingCommandHandler(ApplicationDbContext context) : ICommandHandler<CreateBookingCommand, CreateBookingResult>
+    public class CreateBookingCommandHandler(
+        ApplicationDbContext context,
+        TimeProvider timeProvider) : ICommandHandler<CreateBookingCommand, CreateBookingResult>
     {
         public async Task<ErrorOr<CreateBookingResult>> Handle(CreateBookingCommand command, CancellationToken cancellationToken)
         {
             var existingBooking = await context.Bookings
-                .AnyAsync(b => b.ListingId.Value == command.ListingId &&
-                            b.Status == BookingStatus.Confirmed ||
-                            (b.Status == BookingStatus.Pending && b.ExpiresAt > DateTimeOffset.UtcNow) &&   
-                            b.Period.From < command.CheckOut &&
-                            b.Period.To > command.CheckIn, cancellationToken);
+                .AnyAsync(b => b.ListingId == command.ListingId
+                               && (b.Status == BookingStatus.Draft
+                               || b.Status == BookingStatus.PendingPayment
+                               || b.Status == BookingStatus.Confirmed), cancellationToken);
 
             if (existingBooking)
                 return Errors.Booking.AlreadyExists;
@@ -31,11 +32,10 @@ namespace BookingApp.Server.Features.Bookings.CreateBooking
             var booking = Booking.Create(
                 command.Guests,
                 DateRange.Of(command.CheckIn, command.CheckOut),
-                ListingId.Of(command.ListingId),
-                command.UserId != null ? UserId.Of(command.UserId.Value) : null
+                command.ListingId,
+                timeProvider,
+                command.UserId
             );
-
-            booking.Submit();
 
             context.Bookings.Add(booking);
 

@@ -59,6 +59,7 @@ builder.Services.AddValidatorsFromAssembly(assembly);
 TypeAdapterConfig.GlobalSettings.Scan(assembly);
 
 builder.Services.AddHostedService<RefreshTokenCleanUpJob>();
+builder.Services.AddHostedService<MarkBookingsAsExpiredJob>();
 
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ICodeGenerator, CodeGenerator>();
