@@ -17,7 +17,11 @@ public class ResendVerificationHandler(
         ResendVerificationCommand command,
         CancellationToken cancellationToken)
     {
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email.Equals(command.Email.ToLower()), cancellationToken);
+        var user = await context.Users
+            .AsNoTracking()
+            .Where(x => x.Email.Value == command.Email.ToLowerInvariant())
+            .SingleOrDefaultAsync(cancellationToken);
+        
         if (user is null)
         {
             return Errors.Authentication.UserNotFound;
