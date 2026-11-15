@@ -3,9 +3,9 @@ using BookingApp.Server.BuildingBlocks.Domain.ValueObjects;
 using BookingApp.Server.Features.Bookings.Domain.Bookings;
 using BookingApp.Server.Features.Bookings.Domain.Errors;
 
-namespace BookingApp.Server.Features.Bookings.ConifrmBooking
+namespace BookingApp.Server.Features.Bookings.CompleteGuestDetails
 {
-    public record ConifrmBookingCommand(
+    public record CompleteGuestDetailsCommand(
         BookingId BookingId,
         string FirstName,
         string LastName,
@@ -18,9 +18,9 @@ namespace BookingApp.Server.Features.Bookings.ConifrmBooking
         string Nationality,
         DateTimeOffset? ArrivingTime) : ICommand;
 
-    public class ConifrmBookingCommandValidator : AbstractValidator<ConifrmBookingCommand>
+    public class CompleteGuestDetailsCommandValidator : AbstractValidator<CompleteGuestDetailsCommand>
     {
-        public ConifrmBookingCommandValidator()
+        public CompleteGuestDetailsCommandValidator()
         {
             RuleFor(x => x.FirstName)
                 .NotEmpty()
@@ -69,15 +69,14 @@ namespace BookingApp.Server.Features.Bookings.ConifrmBooking
         }
     }
 
-    public class ConifrmBookingCommandHandler(
+    public class CompleteGuestDetailsCommandHandler(
         ApplicationDbContext context,
-        TimeProvider timeProvider) : ICommandHandler<ConifrmBookingCommand>
+        TimeProvider timeProvider) : ICommandHandler<CompleteGuestDetailsCommand>
     {
-        public async Task<ErrorOr<Unit>> Handle(ConifrmBookingCommand command, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Unit>> Handle(CompleteGuestDetailsCommand command, CancellationToken cancellationToken)
         {
             var booking = await context.Bookings
-                .FirstOrDefaultAsync(b => b.Id == command.BookingId &&
-                b.Status == BookingStatus.Pending, cancellationToken);
+                .FirstOrDefaultAsync(b => b.Id == command.BookingId, cancellationToken);
 
             if (booking == null)
                 return Errors.Booking.NotFound;
@@ -105,13 +104,9 @@ namespace BookingApp.Server.Features.Bookings.ConifrmBooking
                 command.Nationality,
                 command.ArrivingTime);
 
-            booking.ProvideGuestDetails(bookingGuest);
+            booking.SetMainGuestDetails(bookingGuest, timeProvider);
 
-            booking.Confirm();
-
-            context.Bookings.Update(booking);
-
-            context.SaveChanges();
+            await context.SaveChangesAsync(cancellationToken);
 
             return Unit.Value;
         }
