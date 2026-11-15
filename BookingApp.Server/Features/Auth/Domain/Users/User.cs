@@ -23,6 +23,7 @@ public sealed class User : Entity<UserId>
         {
             Id = UserId.Of(Guid.NewGuid()),
             Email = email,
+            NormalizedEmail = email.Value.ToLowerInvariant(),
             PasswordHash = passwordHash,
             EmailVerified = false,
             IsLocked = false,
