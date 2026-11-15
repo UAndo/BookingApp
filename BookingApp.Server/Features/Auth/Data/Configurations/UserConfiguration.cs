@@ -26,15 +26,19 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.PasswordHash)
             .IsRequired();
 
-        builder.Property(u => u.CreatedAt);
+        builder.Property(b => b.CreatedAt);
 
-        builder.Property(u => u.CreatedBy)
-            .HasMaxLength(255);
+        builder.Property(b => b.CreatedBy)
+            .HasConversion(
+                id => id != null ? id.Value : (Guid?)null,
+                value => value.HasValue ? UserId.Of(value.Value) : null);
 
-        builder.Property(u => u.LastModified);
+        builder.Property(b => b.LastModified);
 
-        builder.Property(u => u.LastModifiedBy)
-            .HasMaxLength(255);
+        builder.Property(b => b.LastModifiedBy)
+            .HasConversion(
+                id => id != null ? id.Value : (Guid?)null,
+                value => value.HasValue ? UserId.Of(value.Value) : null);
 
         builder.Property(u => u.AccessFailedCount)
             .IsRequired();
