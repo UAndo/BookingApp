@@ -18,7 +18,7 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.7")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -46,7 +46,7 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("BookingApp.Server.Features.Auth.Domain.Users.User", b =>
@@ -57,12 +57,11 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTimeOffset?>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
@@ -81,12 +80,11 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("LastLoginAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("LastModified")
+                    b.Property<DateTimeOffset?>("LastModified")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
@@ -107,7 +105,7 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("BookingApp.Server.Features.Auth.Domain.VerificationCodes.VerificationCode", b =>
@@ -138,7 +136,7 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("VerificationCodes");
+                    b.ToTable("VerificationCodes", (string)null);
                 });
 
             modelBuilder.Entity("BookingApp.Server.Features.Bookings.Domain.Bookings.Booking", b =>
@@ -146,20 +144,20 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTimeOffset?>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("LastModified")
+                    b.Property<DateTimeOffset?>("LastModified")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("ListingId")
                         .HasColumnType("uuid");
@@ -182,7 +180,53 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ListingId", "Status");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("Bookings", (string)null);
+                });
+
+            modelBuilder.Entity("BookingApp.Server.Features.Listings.Domain.Listings.Listing", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTimeOffset?>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("MaxGuests")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("PricePerNight")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId", "Status");
+
+                    b.ToTable("Listings", (string)null);
                 });
 
             modelBuilder.Entity("BookingApp.Server.Features.Users.Models.UserProfile", b =>
@@ -218,7 +262,7 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("UserProfiles");
+                    b.ToTable("UserProfiles", (string)null);
                 });
 
             modelBuilder.Entity("BookingApp.Server.Features.Auth.Domain.Users.RefreshToken", b =>
@@ -234,6 +278,12 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("BookingApp.Server.Features.Bookings.Domain.Bookings.Booking", b =>
                 {
+                    b.HasOne("BookingApp.Server.Features.Listings.Domain.Listings.Listing", null)
+                        .WithMany()
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BookingApp.Server.Features.Auth.Domain.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId");
@@ -276,7 +326,7 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 
                             b1.HasKey("BookingId");
 
-                            b1.ToTable("Bookings");
+                            b1.ToTable("Bookings", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("BookingId");
@@ -306,7 +356,7 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 
                                     b2.HasKey("BookingGuestBookingId");
 
-                                    b2.ToTable("Bookings");
+                                    b2.ToTable("Bookings", (string)null);
 
                                     b2.WithOwner()
                                         .HasForeignKey("BookingGuestBookingId");
@@ -336,7 +386,7 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 
                             b1.HasIndex("BookingId");
 
-                            b1.ToTable("Guest");
+                            b1.ToTable("Guest", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("BookingId");
@@ -345,6 +395,49 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
                     b.Navigation("BookingGuest");
 
                     b.Navigation("Guests");
+                });
+
+            modelBuilder.Entity("BookingApp.Server.Features.Listings.Domain.Listings.Listing", b =>
+                {
+                    b.HasOne("BookingApp.Server.Features.Auth.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("BookingApp.Server.BuildingBlocks.Domain.ValueObjects.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("ListingId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("AddressLine")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("AddressStreet");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("AddressCity");
+
+                            b1.Property<string>("Country")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("AddressCountry");
+
+                            b1.HasKey("ListingId");
+
+                            b1.ToTable("Listings", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ListingId");
+                        });
+
+                    b.Navigation("Address")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookingApp.Server.Features.Users.Models.UserProfile", b =>
@@ -377,7 +470,7 @@ namespace BookingApp.Server.Infrastructure.Persistence.Migrations
 
                             b1.HasKey("UserProfileUserId");
 
-                            b1.ToTable("UserProfiles");
+                            b1.ToTable("UserProfiles", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("UserProfileUserId");

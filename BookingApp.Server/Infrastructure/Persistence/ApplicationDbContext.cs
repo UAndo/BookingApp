@@ -1,6 +1,7 @@
 using BookingApp.Server.Features.Auth.Domain.Users;
 using BookingApp.Server.Features.Auth.Domain.VerificationCodes;
 using BookingApp.Server.Features.Bookings.Domain.Bookings;
+using BookingApp.Server.Features.Listings.Domain.Listings;
 using BookingApp.Server.Features.Users.Models;
 using System.Reflection;
 
@@ -13,6 +14,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<VerificationCode> VerificationCodes { get; set; }
     public DbSet<Booking> Bookings { get; set; }
+    public DbSet<Listing> Listings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
