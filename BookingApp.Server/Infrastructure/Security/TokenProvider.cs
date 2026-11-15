@@ -21,9 +21,8 @@ public class TokenProvider(
         {
             Subject = new ClaimsIdentity(
             [
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.Value.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email.Value),
-                new Claim("email_verified", user.EmailVerified.ToString())
             ]),
             Expires = timeProvider.GetUtcNow().AddMinutes(jwtOptions.Value.ExpiryMinutes).DateTime,
             SigningCredentials = signingCredentials,

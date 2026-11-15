@@ -5,15 +5,15 @@ namespace BookingApp.Server.Features.Users.GetUser
 {
     public record GetUserResponse(UserDto User);
 
-    public class GetUserEnpoint : ICarterModule
+    public class GetUserEnpoint : ICarterModule 
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("/api/users/{userId:guid}", async (
-                Guid userId,
+            app.MapGet("/api/users/{id:guid}", async (
+                Guid id,
                 ISender sender) =>
             {
-                var query = new GetUserQuery(userId);
+                var query = new GetUserQuery(id);
                 var result = await sender.Send(query);
                 return result.ToOkResult<GetUserResult, GetUserResponse>();
             })
