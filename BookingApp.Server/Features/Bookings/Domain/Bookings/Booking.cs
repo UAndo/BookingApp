@@ -17,10 +17,10 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
         private Booking() { }
 
         public static Booking Create(List<Guest> guests, DateRange period,
-            ListingId listingId, UserId? userId = null)
+            ListingId listingId, TimeProvider timeProvider, UserId? userId = null)
         {
-            if (period.From < DateTimeOffset.UtcNow)
-                throw new ArgumentException("Check-in cannot be in the past.");
+            if (guests == null || guests.Count == 0)
+                throw new InvalidOperationException("At least one guest must be provided.");
 
             var booking = new Booking
             {
@@ -28,85 +28,79 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
                 UserId = userId,
                 ListingId = listingId,
                 Period = period,
-                Status = BookingStatus.Draft
+                Status = BookingStatus.Draft,
+                ExpiresAt = timeProvider.GetUtcNow().AddMinutes(15),
+                CreatedAt = timeProvider.GetUtcNow(),
+                CreatedBy = userId,
+                LastModified = timeProvider.GetUtcNow(),
+                LastModifiedBy = userId
             };
 
-            booking.SelectGuests(guests);
+            booking._guests.AddRange(guests);
 
             return booking;
         }
 
-        public void ProvideGuestDetails(BookingGuest bookingGuest)
+        public void SetMainGuestDetails(BookingGuest bookingGuest, TimeProvider timeProvider, UserId? userId = null)
         {
-            EnsureDraft();
-            BookingGuest = bookingGuest;
+            if (Status != BookingStatus.Draft && Status != BookingStatus.PendingPayment)
+                throw new InvalidOperationException("Cannot update booking in current state.");
+
+            BookingGuest = bookingGuest ?? 
+                throw new ArgumentNullException(nameof(bookingGuest), "Booking guest details must be provided.");
+
+            Status = BookingStatus.PendingPayment;
+            ExpiresAt = timeProvider.GetUtcNow().AddMinutes(15);
+            Touch(timeProvider, userId);
         }
 
-        public void SelectGuests(List<Guest> guests)
-        {
-            EnsureDraft();
-
-            if (guests == null || guests.Count == 0)
-                throw new ArgumentException("At least one guest must be provided.");
-
-            _guests.Clear();
-            _guests.AddRange(guests);
-        }
-
-        public void SelectDates(DateTimeOffset checkIn, DateTimeOffset checkOut)
-        {
-            EnsureDraft();
-
-            if (checkIn < DateTimeOffset.UtcNow)
-                throw new ArgumentException("Check-in cannot be in the past.");
-
-            
-
-            //TODO: add domain event for date change, e.g. to recalculate total price based on new dates and listing's pricing rules
-        }
-
-        public void Submit()
-        {
-            EnsureDraft();
-
-            if (_guests.Count == 0)
-                throw new InvalidOperationException("At least one guest must be provided.");
-
-            if (Period.From == default || Period.To == default)
-                throw new InvalidOperationException("Check-in and check-out dates must be set.");
-
-            Status = BookingStatus.Pending;
-            ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(15);
-        }
-
-        public void Confirm()
-        {
-            if (Status != BookingStatus.Pending)
-                throw new InvalidOperationException("Invalid state transition.");
-
-            Status = BookingStatus.Confirmed;
-
-            //TODO: add domain event for booking confirmation, e.g. to send notification to the user
-        }
-
-        public void Cancel()
+        public void Cancel(TimeProvider timeProvider, UserId? userId = null)
         {
             if (Status == BookingStatus.Cancelled)
                 throw new InvalidOperationException("Booking is already cancelled.");
 
             if (Status == BookingStatus.Confirmed)
             {
-                //TODO: add domain event for booking cancellation, e.g. to handle refundч' logic and penalty fees if applicable
+                //TODO: add domain event for booking cancellation, e.g. to handle refund logic and penalty fees if applicable
             }
 
             Status = BookingStatus.Cancelled;
+            Touch(timeProvider, userId);
             //TODO: add domain event for booking cancellation, e.g. to send notification to the user
         }
 
-        private void EnsureDraft()
+        public void Confirm(TimeProvider timeProvider, UserId? userId = null)
+        {
+            if (Status != BookingStatus.PendingPayment)
+                throw new InvalidOperationException("Only bookings pending payment can be confirmed.");
+
+            Status = BookingStatus.Confirmed;
+            Touch(timeProvider, userId);
+        }
+
+        public void MarkAsExpired(TimeProvider timeProvider, UserId? userId = null)
+        {
+            if (Status != BookingStatus.Draft && Status != BookingStatus.PendingPayment)
+                throw new InvalidOperationException("Only bookings pending payment or draft can be marked as expired.");
+            Status = BookingStatus.Expired;
+            Touch(timeProvider, userId);
+        }
+
+        public void UpdateGuests(List<Guest> guests, TimeProvider timeProvider, UserId? userId = null)
         {
             if (Status != BookingStatus.Draft)
-                throw new InvalidOperationException("Cannot update booking in current state.");
+                throw new InvalidOperationException("Cannot update guests for booking in current state.");
+            if (guests == null || guests.Count == 0)
+                throw new InvalidOperationException("At least one guest must be provided.");
+            _guests.Clear();
+            _guests.AddRange(guests);
+            Touch(timeProvider, userId);
+        }
+
+        private void Touch(TimeProvider timeProvider, UserId? userId)
+        {
+            LastModified = timeProvider.GetUtcNow();
+            LastModifiedBy = userId;
         }
     }
 }

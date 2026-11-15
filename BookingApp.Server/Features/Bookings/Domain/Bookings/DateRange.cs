@@ -7,9 +7,9 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
         public DateTimeOffset From { get; }
         public DateTimeOffset To { get; }
 
-        public NpgsqlRange<DateTime> ToNpgsqlRange()
+        public NpgsqlRange<DateTimeOffset> ToNpgsqlRange()
         {
-            return new NpgsqlRange<DateTime>(From.UtcDateTime, true, To.UtcDateTime, false);
+            return new NpgsqlRange<DateTimeOffset>(From.UtcDateTime, true, To.UtcDateTime, false);
         }
 
         private DateRange(DateTimeOffset from, DateTimeOffset to)
@@ -26,12 +26,17 @@ namespace BookingApp.Server.Features.Bookings.Domain.Bookings
             return new DateRange(from, to);
         }
 
-        public static DateRange FromNpgsqlRange(NpgsqlRange<DateTime> range)
+        public static DateRange FromNpgsqlRange(NpgsqlRange<DateTimeOffset> range)
         {
             if (range.IsEmpty)
                 throw new ArgumentException("Range cannot be empty.");
 
-            return new DateRange(new DateTimeOffset(range.LowerBound), new DateTimeOffset(range.UpperBound));
+            return new DateRange(new DateTimeOffset(range.LowerBound.UtcDateTime), new DateTimeOffset(range.UpperBound.UtcDateTime));
+        }
+
+        public bool Overlaps(DateRange other)
+        {
+            return other.From <= To && From <= other.To;
         }
     }
 }
