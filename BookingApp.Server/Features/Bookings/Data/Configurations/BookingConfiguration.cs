@@ -1,6 +1,7 @@
 ﻿using BookingApp.Server.BuildingBlocks.Domain.ValueObjects;
 using BookingApp.Server.Features.Auth.Domain.Users;
 using BookingApp.Server.Features.Bookings.Domain.Bookings;
+// using BookingApp.Server.Features.Listings.Domain.Listings;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BookingApp.Server.Features.Bookings.Data.Configurations
@@ -65,7 +66,7 @@ namespace BookingApp.Server.Features.Bookings.Data.Configurations
                 g.Property<int>("Id");
                 g.HasKey("Id");
 
-                g.Property(g => g.GuestKind)
+                g.Property(x => x.GuestKind)
                 .HasColumnName("GuestKind")
                 .HasConversion<string>();
             });
@@ -89,6 +90,20 @@ namespace BookingApp.Server.Features.Bookings.Data.Configurations
                .HasConversion<string>();
 
             builder.Property(b => b.ExpiresAt);
+
+            builder.Property(b => b.CreatedAt);
+
+            builder.Property(b => b.CreatedBy)
+                .HasConversion(
+                    id => id != null ? id.Value : (Guid?)null,
+                    value => value.HasValue ? UserId.Of(value.Value) : null);
+
+            builder.Property(b => b.LastModified);
+
+            builder.Property(b => b.LastModifiedBy)
+                .HasConversion(
+                    id => id != null ? id.Value : (Guid?)null,
+                    value => value.HasValue ? UserId.Of(value.Value) : null);
 
             builder.HasOne<User>()
                 .WithMany()
